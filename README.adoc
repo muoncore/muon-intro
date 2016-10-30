@@ -1,0 +1,156 @@
+# Muon Example Project (for muCon)
+
+This repository enables working with all the services in a single place.
+
+Currently, this is source code oriented. For a real system, it would be expected to split these
+into their own repositories and work in a more artifact oriented way.
+
+## Start up
+
+*Pre-requisites*
+
+You need the following installed and working :-
+
+* Java, 8+
+* Node/ NPM, recommend 6.8
+* Docker
+* Docker Compose
+* Make
+
+It is recommended to install the Muon cli, which is a npm module
+
+```
+npm install -g muon-cli
+```
+
+*Startup*
+
+This runs up the entire stack. It uses docker-compose for orchestrating the processes.
+
+```
+make
+```
+
+You can use docker-compose directly to stop different services to enable local development.
+
+Eg, to perform ui dev, you would run ```make``` and then run
+
+```
+docker-compose stop ui
+```
+
+Then, you can start the ui service in your IDE, running against the rabbit server that the environment runs up and has against the local environment.
+
+## Data Flows
+
+There are two primary event data flows. Product Creation and Basket maintenance
+
+Product data is added via the event (this is the standard Muon event schema)
+
+```
+{
+	"event-type": "ProductAdded",
+	"schema": "http://www.simplicityitself.io/mucon/product/1",
+	"stream-name": "products",
+	"service-id": "creating-service",
+	"payload": {
+		"product-name": "First Data",
+		"product-id": "123456789",
+		"description": "Hello World"
+	}
+}
+```
+
+You can add a product using the muon cli
+
+```
+muon event '{ "event-type": "ProductAdded", "schema": "http://www.simplicityitself.io/mucon/product/1","stream-name": "products","service-id": "creating-service","payload": {"product-name": "First Data","product-id": "123456789","description": "Hello World"}}'
+```
+
+Baskets are updated with the following event
+
+```
+{
+	"event-type": "BasketProductModified",
+	"schema": "http://www.simplicityitself.io/mucon/basket/1",
+	"stream-name": "basket",
+	"service-id": "creating-service",
+	"payload": {
+		"user-id": "123",
+		"product-id": "123456789",
+		"quantity-added": 3
+	}
+}
+```
+
+You can add an item to a users basket, by emitting the event
+
+```
+muon event '{"event-type": "BasketProductModified","schema": "http://www.simplicityitself.io/mucon/basket/1","stream-name": "basket","service-id": "creating-service","payload": {"user-id": "123", "product-id": "123456789","quantity-added": 3}}'
+```
+
+The `quantity-added` field is expected to also be negative.
+
+You can add these
+
+## Services
+
+This consists of a few services, implementing the very basics of an online shop, with supporting infrastructure services.
+
+### Support
+
+Running are :-
+
+* RabbitMQ - for communication and discovery
+* Photon - For event persistence
+* Molecule - a management web UI
+
+
+To interact with the running services, you can use the Muon CLI
+
+```
+> export MUON_URL=amqp://muon:microservices@localhost <1>
+> muon discover      <2>
+
+
+> muon introspect product-page   <3>
+> muon event            <4>
+```
+<1> Set the discovery location to tbe the AMQP server running here
+<2> Execute a discovery, see what's running locally. (also `muon disco`, `muon d` etc)
+<3> Introspect the service `product-page`. See what capabilities it has
+<4> Emit an event. This is persisted into the local event store, Photon.
+
+### Application Services
+
+The actual application is made up of several cooperating services, fronted by a very simple Muon.js + React
+user interface.
+
+#### Product Search
+
+Reads all product creation events, pushes them into an internal elastic search instance and
+presents a search interface on top of them using rpc.
+
+```
+muon rpc rpc://product-search/search '{"text":"blue"}'
+```
+
+This services also has a basic 'continuous search' facility, using the reactive stream protocol
+
+```
+muon stream stream://product-search/search '{"text":"blue"}'
+```
+
+You will receive an update whenever a new product event is read in (your search may not actually change).
+
+
+#### Product Page microservice
+
+A service that is able to run fully autonomously to render the product page in the shop.
+Contains full product specs, cross sell and active basket size counts.
+
+#### UI
+
+A simple React JS UI using Muon.js imported as a minified JS file
+
+Muon.js can also be used when imported as a NPM module and run through webpack or browserify

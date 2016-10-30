@@ -1,0 +1,21 @@
+{
+    "name": "ui",
+    "version": "0.0.1",
+    "author": "David Dawson",
+    "description": "UI",
+    "license": "Apache 2.0",
+    "engines": {
+        "node": ">=4.10"
+    },
+    "scripts": {
+        "start": "node ./ui-app.js"
+    },
+    "dependencies": {
+        "express": "~4.14.0",
+        "underscore": "~1.8.3"
+    },
+    "devDependencies": {
+        "mocha": "~3.1.0",
+        "chai": "~3.5.0"
+    }
+}

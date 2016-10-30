@@ -1,0 +1,37 @@
+{
+  "name": "users-list",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/product-page.js",
+    "test": "XUNIT_FILE=output/xunit.xml ./node_modules/.bin/mocha --recursive -R xunit-file test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muoncore/muon-mucon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/muoncore/muon-mucon/issues"
+  },
+  "homepage": "https://github.com/muoncore/muon-mucon#readme",
+  "dependencies": {
+    "uuid": "*",
+    "sendgrid": "4.4.0",
+    "muon-core": "7.1.5",
+    "cors": "*",
+    "body-parser": "*",
+    "nconf": "~0.6",
+    "validator": "~3.x",
+    "signals": "1.0.0"
+  },
+  "devDependencies": {
+    "mocha": "2.5.3",
+    "xunit-file": "1.0.0",
+    "should": "11.1.0",
+    "sinon": "1.17.5",
+    "mocha-sinon": "1.1.5"
+  }
+}

@@ -1,0 +1,103 @@
+version: '2'
+services:
+  rabbitmq:
+    image: rabbitmq:3.6.2-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=muon
+      - RABBITMQ_DEFAULT_PASS=microservices
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+  photon:
+    image: simplicityitself-muon-image.jfrog.io/photon
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+    links:
+      - rabbitmq
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    command: -jar target/photon.jar -rest.host 0.0.0.0
+
+  gateway:
+    image: simplicityitself-muon-image.jfrog.io/muonjs-gateway:latest
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+    links:
+      - rabbitmq
+    restart: always
+    ports:
+      - "9898:9898"
+  molecule-core:
+      image: simplicityitself-muon-image.jfrog.io/molecule-core:latest
+      environment:
+        - MUON_URL=amqp://muon:microservices@rabbitmq
+      links:
+        - rabbitmq
+        - photon
+
+  molecule-ui:
+    image: simplicityitself-muon-image.jfrog.io/molecule-ui:latest
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+      - PORT=3420
+      - MUON=true
+    links:
+      - rabbitmq
+    ports:
+      - "3420:3420"
+    expose:
+      - "3420"
+    depends_on:
+      - gateway
+      - molecule-core
+      - photon
+
+
+#Application services
+  product-page:
+    build: ./product-page
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+    links:
+      - rabbitmq
+    depends_on:
+      - photon
+
+  product-search:
+    build: ./product-search
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+    links:
+      - rabbitmq
+    depends_on:
+      - photon
+
+  basket:
+    build: ./basket
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+    links:
+      - rabbitmq
+    depends_on:
+      - photon
+
+  ui:
+    build: ./ui
+    environment:
+      - MUON_URL=amqp://muon:microservices@rabbitmq
+    links:
+      - rabbitmq
+    ports:
+      - "3419:3419"
+    depends_on:
+      - photon
+      - product-page
+      - basket
+      - gateway
+      - product-search
+      - molecule-ui
