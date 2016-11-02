@@ -1,6 +1,4 @@
-# Muon Example Project (for muCon)
-
-This repository enables working with all the services in a single place.
+# Building Microservices Protocols and Autonomous Systems using Muon
 
 Currently, this is source code oriented. For a real system, it would be expected to split these
 into their own repositories and work in a more artifact oriented way.
@@ -17,7 +15,7 @@ You need the following installed and working :-
 * Docker Compose
 * Make
 
-It is recommended to install the Muon cli, which is a npm module
+It is recommended to install the Muon cli, which is an npm module
 
 ```
 npm install -g muon-cli
@@ -25,7 +23,7 @@ npm install -g muon-cli
 
 *Startup*
 
-This runs up the entire stack. It uses docker-compose for orchestrating the processes.
+This runs up the entire system. It uses docker-compose for orchestrating the processes.
 
 ```
 make

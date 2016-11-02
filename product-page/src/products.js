@@ -21,6 +21,9 @@ module.exports.create = function(muon) {
     return {
         getProduct: function(productId) {
             return products[productId]
+        },
+        all: function() {
+            return products
         }
     }
 }

@@ -36,3 +36,6 @@ redeploy: build dockerclean docker docker-run
 dockerclean:
 	docker-compose down
 	docker-compose rm -f --all
+
+populate:
+	./data/populate.sh

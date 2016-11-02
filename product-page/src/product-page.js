@@ -12,7 +12,6 @@ var products = require("./products").create(muon)
 var basket = require("./basket").create(muon)
 
 muon.handle('/', function (request, respond) {
-    console.dir(request)
     var productId = request.body["product-id"]
     var userId = request.body["user-id"]
 
@@ -28,7 +27,7 @@ muon.handle('/', function (request, respond) {
         })
     } else {
         respond({
-            id: null,
+            id: productId,
             message: "No Product Found"
         })
     }
